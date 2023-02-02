@@ -20,7 +20,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Iterator.cpp">
+    <ClCompile Include="Iterator.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
