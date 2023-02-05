@@ -8,6 +8,6 @@ import (
 const DatasetPath = "./dataset.txt"
 
 func main() {
-    concurent.Run(DatasetPath)
     naive.Run(DatasetPath)
+    concurent.Run(DatasetPath)
 }

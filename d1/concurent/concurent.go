@@ -7,13 +7,20 @@ import (
     "os"
     "strconv"
     "strings"
+
+    "github.com/red-bird-ax/aoc22-d1/cache"
 )
 
 const BufferSize = 1024
 
+type Result struct {
+    PartOne int64
+    PartTwo int64
+}
+
 type Communication struct {
     Errors   chan error
-    Result   chan int64
+    Result   chan Result
     Chunks   chan string
     Lines    chan string
 }
@@ -21,7 +28,7 @@ type Communication struct {
 func Run(path string) {
     comm := Communication{
         Errors:   make(chan error),
-        Result:   make(chan int64),
+        Result:   make(chan Result),
         Chunks:   make(chan string, 8),
         Lines:    make(chan string, 8),
     }
@@ -35,7 +42,7 @@ func Run(path string) {
         log.Fatal(err)
 
     case result := <-comm.Result:
-        fmt.Println("Max calories:", result)
+        fmt.Printf("Max calories: %d, top three sum: %d\n", result.PartOne, result.PartTwo)
     }
 }
 
@@ -97,13 +104,12 @@ func splitLines(comm *Communication) {
 }
 
 func calculateCalories(comm *Communication) {
-    var (
-        sum int64
-        max int64
-    )
+    topThree := cache.New[int64](3)
+    var sum, max int64
 
     for line := range comm.Lines {
         if line == "" {
+            cache.TryPush(topThree, sum)
             if sum > max {
                 max = sum
             }
@@ -118,5 +124,13 @@ func calculateCalories(comm *Communication) {
         }
     }
 
-    comm.Result <- max
+    sum = 0
+    for _, element := range cache.GetElements(topThree) {
+        sum += element
+    }
+
+    comm.Result <- Result{
+        PartOne: max,
+        PartTwo: sum,
+    }
 }
